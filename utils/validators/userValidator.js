@@ -21,7 +21,13 @@ exports.createUserValidator = [
     .notEmpty()
     .withMessage('userName required')
     .isLength({ min: 3 })
-    .withMessage('Too short User name'),
+    .withMessage('Too short User name')
+    .custom((val) =>
+      User.findOne({ userName : val }).then((user) => {
+        if (user) {
+          return Promise.reject(new Error('username already in user'));
+        }})),
+
 
   check('email')
     .notEmpty()

@@ -5,15 +5,14 @@ const { v4: uuidv4 } = require('uuid');
 const sharp = require('sharp');
 const handlersFactory = require('./handlersFactory');
 const { uploadSingleImage } = require('../middlewares/uploadImageMiddleware');
-const createToken = require('../utils/createToken');
 
 // Upload single image
-exports.uploadUserImage = uploadSingleImage('cover');
+exports.uploadPlaceImage = uploadSingleImage('cover');
 
 // Image processing
 exports.resizeImage = asyncHandler(async (req, res, next) => {
     const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
-  
+
     if (req.file) {
       await sharp(req.file.buffer)
         .resize(600, 600)
@@ -24,63 +23,61 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
       // Save image into our db
       req.body.cover = filename;
     }
-  
     next();
   });
 
-export const createPlace =  async (req,res,next)=>{
-    if(!req.isPlaceOwner) 
-    return next(createError(403,"only placeowner can create place!"));
-
-    const newPlace = new Place({
+exports.createPlace = asyncHandler( async (req,res)=>{
+    const document = await Place.create({
         userId: req.userId,
-        ...req.body,
-    }); 
-    try{
-        const savedPlace = await newPlace.save();
-        res.status(201).json(savedPlace)
-    } catch (err){
-        next(err);
-    }
+        ...req.body,});
+
+    res.status(200).json({
+        status:'success',
+        data: {
+            document,
+        }
+    });
  
-};
-export const deletePlace=  async (req,res,next)=>{
-    try {
-        const place = await Place.findById(req.params.id);
-        if(place.userId !== req.userId) 
-            return next(createError(403,"you can delete only your place"));
+});
 
-            await Place.findByIdAndDelete(req.params.id);
-            res.status(200).send("Place has been deleted!");
-    }catch(err){
-        next(err)
-    }
+exports.deletePlace = asyncHandler(async (req,res,next)=>{
+    const document = await Place.findByIdAndDelete(req.params.id);
+    if (!document) {
+        return next(new AppError(`No document for this id ${id}`, 404));
+      }
+  
+      res.status(204).json({
+        status: 'success',
+        data: null,
+      });
 
-};
+});
 
-export const getPlace=  async (req,res,next)=>{
-    try {
-        const place = await Place.findById(req.params.id);
-        if(!place) next(createError(404,"Place not found!"));
-        res.status(200).send(place)
-    }catch(err){
-        next(err)
-    }
-};
-export const getPlaces=  async (req,res,next)=>{
-    const q = req.query;
-    const filters = {
-        ...(q.userId && {userId: q.userId}),
-        ...(q.cat && {cat: q.cat}),
-        ...((q.min || q.max) && {priceRange:{ ...(q.min && { $gt: q.min }), ...(q.max && {$lt: q.max})},}),
-        ...(q.search && {title: { $regex: q.search, $options: "i"}}),
-    }
+exports.getPlace = handlersFactory.getOne(Place);
 
-    try {
-       // const places = await Place.find(filters).sort({[q.sort]: -1 }); //to get the latest ones
-        const places = await Place.find(filters)
-        res.status(200).send(places)
-    }catch(err){
-        next(err)
-    }
-};
+exports.getAllPlaces = handlersFactory.getAll(Place);
+
+exports.updatePlaceData = asyncHandler(async (req, res, next) => {
+    const updatedPlace = await Place.findByIdAndUpdate(
+      req.place.id,
+      {
+        placeName: req.body.placeName,
+        desc: req.body.desc,
+        address: req.body.address,
+        priceRange: req.body.priceRange,
+        totalstars: req.body.totalstars,
+        hallsNumber: req.body.hallsNumber,
+        cover: req.body.cover,
+        refund_time: req.body.refund_time,
+        halls: req.body.halls,
+      },
+      { new: true }
+    );
+  
+    await updatedPlace.save();
+  
+    res.status(200).json({
+      status: 'success',
+      data: updatedPlace,
+    });
+  });

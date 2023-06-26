@@ -7,7 +7,7 @@ userId:{//to which user
      required:true,
 },
 placeName:{
-    type: String,
+    type: String, 
      required:true, 
 },
 desc:{
@@ -32,7 +32,7 @@ starNumber:{
 },
 hallsNumber:{
     type: Number,
-    default : 0,
+    default : 1,
 },
 cover:{
     type: String,
@@ -52,6 +52,12 @@ halls:[
 },{
     timestamps:true
 });
+
+placeSchema.pre(/^find/, function (next) {
+    // this points to the current query.
+    this.find({ active: { $ne: false } });
+    next();
+  });
 
 const Place = mongoose.model('Place', placeSchema)
 module.exports = Place;

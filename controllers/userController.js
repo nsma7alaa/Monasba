@@ -51,7 +51,7 @@ exports.createUser = handlersFactory.createOne(User);
 exports.updateUser = asyncHandler(async (req, res, next) => {
   const document = await User.findByIdAndUpdate(
     req.params.id,
-    {
+    { 
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       userName: req.body.userName,

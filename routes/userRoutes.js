@@ -50,7 +50,7 @@ router.patch(
 router.delete('/deleteMe', deleteLoggedUserData);
 
 // Admin
-router.use(authController.allowedTo('admin'));
+router.use(authController.allowedTo("admin"));
 
 router.patch(
   '/changePassword/:id',
