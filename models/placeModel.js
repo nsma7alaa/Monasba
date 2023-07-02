@@ -15,7 +15,11 @@ address:{
     type: String,
      required:true,
 },
-priceRange:{
+priceRangeMax:{
+    type: Number,
+    default : 0,
+},
+priceRangeMin:{
     type: Number,
     default : 0,
 },
