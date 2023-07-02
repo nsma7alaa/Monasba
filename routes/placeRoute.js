@@ -2,23 +2,26 @@ const express = require('express');
 const {
   getAllPlaces,
   getPlace,
+  getMyPlace,
   createPlace,
-  deletePlace,
+  deleteSavedPlaceData,
   uploadPlaceImage,
   resizeImage,
-  updatePlaceData,
+  updateMyplace,
 } = require('../controllers/placeController');
-const authController = require ('../controllers/authController')
+const authController = require ('../controllers/authController');
 const router = express.Router();
+
 router.use(authController.protect);
 
+// router.use(authController.allowedTo("user"));
 router
 .route('/')
-.get(getAllPlaces)
+.get(authController.allowedTo("user"), getAllPlaces)
 
 router
 .route('/single/:id')
-.get(getPlace)
+.get(authController.allowedTo("user"), getPlace)
 
 
 //owner
@@ -30,10 +33,12 @@ router
 .post(uploadPlaceImage, resizeImage, createPlace);
 
 
-router
-.route('/:id')
-.get( getPlace)
-.patch(uploadPlaceImage, resizeImage, updatePlaceData)
-.delete(deletePlace);
+router.get('/getmyplace', getMyPlace, getPlace);
+
+router.patch('/updatemyPlace',uploadPlaceImage,resizeImage, updateMyplace)
+
+router.delete('/deleteMyplace', deleteSavedPlaceData);
+
+
 
 module.exports = router;

@@ -2,10 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const placeSchema = new Schema({
-userId:{//to which user
-    type: String,
-     required:true,
-},
+
 placeName:{
     type: String, 
      required:true, 
@@ -47,7 +44,11 @@ halls:[
     {
       type:mongoose.Schema.Types.ObjectId, ref: 'Hall'
     }
-]
+],
+active: {
+    type: Boolean,
+    default: true,
+  },
 
 },{
     timestamps:true

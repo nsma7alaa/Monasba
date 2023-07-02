@@ -8,6 +8,7 @@ const AppError = require('../utils/appError');
 const User = require('../models/userModel');
 const { uploadSingleImage } = require('../middlewares/uploadImageMiddleware');
 const createToken = require('../utils/createToken');
+const { roles } =require('../roles')
 
 // Upload single image
 exports.uploadUserImage = uploadSingleImage('profileImg');
@@ -29,6 +30,37 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
 
   next();
 });
+
+
+
+// exports.grantAccess = function(action, resource){
+//   return async (req,res,next)=>{
+//     try{
+//       const Permission = roles.can(req.user.role)[action](resource);
+//       if(!Permission.granted){
+//         return next(new AppError("you don't have permission to perform this action", 401));
+//     }}
+//     catch(error){
+//       next(error)
+//     }
+//   }
+// }
+// exports.allowIfLoggedin = async (req,res,next)=> {
+//   try{
+//     const user = res.locals.loggedInUser;
+//     if(!user){
+//     return next(new AppError("You need to be logged in to access this route", 401));
+//     req.user = user;
+//   }}
+//    catch (error){
+//     next(error);
+//    }
+// }
+
+
+
+
+
 
 // @desc    Get list of users
 // @route   GET /api/v1/users
