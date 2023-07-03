@@ -6,6 +6,8 @@ const sharp = require('sharp');
 const handlersFactory = require('./handlersFactory');
 const { uploadSingleImage } = require('../middlewares/uploadImageMiddleware');
 const { TriggerContextImpl } = require('twilio/lib/rest/api/v2010/account/usage/trigger.js');
+const User = require('../models/userModel.js');
+
 
 // Upload single image
 exports.uploadPlaceImage = uploadSingleImage('cover');
@@ -28,7 +30,38 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
   });
 
 
-exports.createPlace = handlersFactory.createOne(Place);
+exports.createPlace = asyncHandler(async (req,res,next)=>{
+  try {
+    const userId = req.user.id;
+    // Check if the user is the owner
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(new AppError('User not found', 404));
+    }
+    // Check if the user already has a place
+    const existingPlace = await Place.findOne({ owner: userId });
+    if (existingPlace) {
+      return next(new AppError('You can only have one place.', 400));
+    }
+    // Create a new place
+    const newPlace = new Place({
+      owner: user._id,
+      ...req.body
+      // Set additional fields for the place
+    });
+    // Save the new place
+    await newPlace.save();
+    res.status(200).json({
+      status: 'success',
+      data: {
+        newPlace,
+      }
+  });} catch (err) {
+    console.error('Failed to create place', err);
+    res.status(400).json({ error: 'You can only have one place.' });
+  }
+});
+
 exports.deletePlace = handlersFactory.deleteOne(Place);
 
 // exports.deletePlace = asyncHandler(async (req,res,next)=>{
@@ -78,14 +111,14 @@ exports.getAllPlaces = handlersFactory.getAll(Place);
 // });
 //getplacefromtheowner
 exports.getMyPlace = asyncHandler(async (req,res, next)=>{
-  req.params.id = req.Place._id;
+  req.params.id = req.user._id,
   next();
 });
 
 //updateplace from his owner
 exports.updateMyplace = asyncHandler(async (req,res,next)=>{
   const updatedPlace = await Place.findByIdAndUpdate(
-    req.Place._id,{
+    req.Place.id,{
       placeName: req.body.placeName,
         desc: req.body.desc,
         address: req.body.address,

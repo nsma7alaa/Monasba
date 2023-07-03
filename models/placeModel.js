@@ -48,6 +48,8 @@ phoneNumber:{
     type: String,
     required: false,
 },
+owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+
 halls:[
     {
       type:mongoose.Schema.Types.ObjectId, ref: 'Hall'
