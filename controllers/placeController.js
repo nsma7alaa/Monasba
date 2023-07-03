@@ -94,6 +94,7 @@ exports.updateMyplace = asyncHandler(async (req,res,next)=>{
         totalstars: req.body.totalstars,
         hallsNumber: req.body.hallsNumber,
         cover: req.body.cover,
+        phoneNumber: req.body.phoneNumber,
         refund_time: req.body.refund_time,
         halls: req.body.halls,
     },

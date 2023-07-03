@@ -44,6 +44,10 @@ refund_time:{
     type: Number,
     default: 3,
 },
+phoneNumber:{
+    type: String,
+    required: false,
+},
 halls:[
     {
       type:mongoose.Schema.Types.ObjectId, ref: 'Hall'
