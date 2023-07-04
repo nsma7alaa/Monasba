@@ -2,11 +2,6 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const hallPackageSchema = new Schema({
-userId:{//what place
-        type: String,
-         required:true,
-    },
-
 placeId:{//what place
     type: String,
      required:true,

@@ -5,7 +5,6 @@ const { v4: uuidv4 } = require('uuid');
 const sharp = require('sharp');
 const handlersFactory = require('./handlersFactory');
 const { uploadSingleImage } = require('../middlewares/uploadImageMiddleware');
-const { TriggerContextImpl } = require('twilio/lib/rest/api/v2010/account/usage/trigger.js');
 const User = require('../models/userModel.js');
 
 

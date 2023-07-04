@@ -37,7 +37,7 @@ hallsNumber:{
 },
 cover:{
     type: String,
-     required:false,
+    default: "blackdefult.jpg",
 },
 
 refund_time:{
