@@ -4,7 +4,7 @@ const {
   getPlace,
   getMyPlace,
   createPlace,
-  deleteSavedPlaceData,
+  deletePlace,
   uploadPlaceImage,
   resizeImage,
   updateMyplace,
@@ -32,9 +32,9 @@ router
 
 router.get('/getmyplace', authController.allowedTo("owner") , getMyPlace);
 
-router.patch('/updatemyPlace',uploadPlaceImage,resizeImage, updateMyplace)
+router.put('/updatemyplace',authController.allowedTo("owner") , uploadPlaceImage,resizeImage, updateMyplace)
 
-router.delete('/deleteMyplace', deleteSavedPlaceData);
+router.delete('/deletemyplace',  authController.allowedTo("owner"), deletePlace);
 
 
 

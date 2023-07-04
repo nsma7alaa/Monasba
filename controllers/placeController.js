@@ -62,90 +62,57 @@ exports.createPlace = asyncHandler(async (req,res,next)=>{
   }
 });
 
-exports.deletePlace = handlersFactory.deleteOne(Place);
+exports.deletePlace = asyncHandler(async (req,res,next)=>{
+  const userId = req.user.id;
+  // Delete the place owned by the user from the database
+   await Place.deleteOne({ owner: userId }, (err, result) => {
+        if (err) {
+          return next(new AppError('failed to delete place', 500));
+        }
+        if (result.deletedCount === 0) {
+          return next(new AppError('place not found', 404));
+        }
 
-// exports.deletePlace = asyncHandler(async (req,res,next)=>{
-//     const document = await Place.findByIdAndDelete(req.params.id);
-//     if (!document) {
-//         return next(new AppError(`No document for this id ${id}`, 404));
-//       }
-  
-//       res.status(204).json({
-//         status: 'success',
-//         data: null,
-//       });
-
-// });
+        res.json({ message: 'Place deleted successfully' });
+      });
+    });
 
 exports.getPlace = handlersFactory.getOne(Place);
 
 exports.getAllPlaces = handlersFactory.getAll(Place);
 
-// exports.updatePlaceData = asyncHandler(async (req, res, next) => {
-//     const updatePlace = await Place.findByIdAndUpdate(
-//       req.params.id,
-//       {
-//         placeName: req.body.placeName,
-//         desc: req.body.desc,
-//         address: req.body.address,
-//         priceRange: req.body.priceRange,
-//         totalstars: req.body.totalstars,
-//         hallsNumber: req.body.hallsNumber,
-//         cover: req.body.cover,
-//         refund_time: req.body.refund_time,
-//         halls: req.body.halls,
-//       },
-//       { new: true ,
-//       renValidators: true,}
-//     );
-//     if (!updatePlace) {
-//       return next(new AppError(`No place for this id ${req.params.id}`, 404));
-//     }
-//     await updatePlace.save();
-  
-//     res.status(200).json({
-//       status: 'success',
-//       data: {updatePlace,
-//     },
-//   });
-// });
 //getplacefromtheowner
 exports.getMyPlace = asyncHandler(async (req,res, next)=>{
-  req.params.id = req.user._id,
-  next();
+  const userId = req.user.id;
+  const existingPlace = await Place.findOne({ owner: userId });
+  if (existingPlace) {
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        existingPlace,
+      }});
+  }
+  next(new AppError('There is no place for this owner yet', 400));
 });
 
 //updateplace from his owner
 exports.updateMyplace = asyncHandler(async (req,res,next)=>{
-  const updatedPlace = await Place.findByIdAndUpdate(
-    req.Place.id,{
-      placeName: req.body.placeName,
-        desc: req.body.desc,
-        address: req.body.address,
-        priceRangeMax: req.body.priceRangeMax,
-        priceRangeMin: req.body.priceRangeMin,
-        totalstars: req.body.totalstars,
-        hallsNumber: req.body.hallsNumber,
-        cover: req.body.cover,
-        phoneNumber: req.body.phoneNumber,
-        refund_time: req.body.refund_time,
-        halls: req.body.halls,
-    },
-    { new: true }
-  );
+  const userId = req.user.id;
+  const updatedData = req.body;
 
-  await updatedPlace.save();
+    await Place.findOne({ owner: userId }, (err,place)=>{
+    if (err){ return next(new AppError('Failed to retrieve place from database',500)) }
 
-  res.status(200).json({
-    status: 'success',
-    data: updatedPlace,
-  });
-});
-//deleteMyplace
-exports.deleteSavedPlaceData = asyncHandler(async (req, res, next) => {
-  await Place.findByIdAndUpdate(req.Place._id, { active: false });
+    if (!place) {
+      return res.status(404).json({ error: 'Place not found' });
+     }
+    })
+    await Place.updateOne({ owner: userId }, { $set: updatedData }, (err) => {
+    if (err) {
+      return next(new AppError('Failed to update place',500));
+    }}) 
 
-  res.status(204).json({
-    status: 'Success',
+    res.status(200).json({
+    status: 'success'
   });
 });
