@@ -1,17 +1,21 @@
-import express from "express";
-import { verifyToken } from "../middleware/jwt.js";
+const  express = require ("express");
+router.use(authController.protect);
 
-import{
+const {
     createHall,
     deleteHall,
     getHall,
     getHalls
-} from "../controllers/hall.controller.js"
+} = require("../controllers/hall.controller.js");
+const authController = require ('../controllers/authController.js');
 const router = express.Router();
+
+/////////////////////////////////trying
 
 router.post("/", verifyToken, createHall);
 router.delete("/:id", verifyToken, deleteHall);
 router.get("/:placeId/single/:id", verifyToken, getHall);
 router.get("/:placeId", verifyToken, getHalls);
  
-export default router;
+module.exports = router;
+    
