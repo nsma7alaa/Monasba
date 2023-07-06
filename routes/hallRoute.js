@@ -1,5 +1,5 @@
 const  express = require ("express");
-router.use(authController.protect);
+
 
 const {
     createHall,
@@ -9,6 +9,8 @@ const {
 } = require("../controllers/hall.controller.js");
 const authController = require ('../controllers/authController.js');
 const router = express.Router();
+
+router.use(authController.protect);
 
 /////////////////////////////////trying
 
