@@ -25,6 +25,8 @@ const {
   deleteLoggedUserData,
 } = require('../controllers/userController');
 
+const {createNotification} = require ('../controllers/notificationController');
+
 const authController = require('../controllers/authController');
 
 const router = express.Router();
@@ -68,5 +70,11 @@ router
   .get(getUserValidator, getUser)
   .patch(uploadUserImage, resizeImage, updateUserValidator, updateUser)
   .delete(deleteUserValidator, deleteUser);
+
+  router
+  .route('/notification')
+  .post(createNotification)
+  
+  
 
 module.exports = router;

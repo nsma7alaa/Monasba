@@ -1,8 +1,8 @@
-import Place from "../models/place.model.js";
-import Hall from "../models/hall.model.js"
-import createError from "../utils/createError.js"
+const Place = require ("../models/place.model.js");
+const Hall = require ("../models/hall.model.js")
+const createError = require ("../utils/createError.js")
 
-export const createHall = async (req,res,next)=>{
+exports.createHall = async (req,res,next)=>{
     if(req.isPlaceOwner) return next(createError(403,"placeOwner can't create a Hall "));
     
     const newHall = new Hall({
@@ -26,7 +26,7 @@ try{
 catch (err) {next(err); }
  
 };
-export const deleteHall=  async (req,res,next)=>{
+exports.deleteHall=  async (req,res,next)=>{
     try {
         const hall = await Hall.findById(req.params.id);
         if(hall.userId !== req.userId) 
@@ -40,7 +40,7 @@ export const deleteHall=  async (req,res,next)=>{
 
 };
 
-export const getHall=  async (req,res,next)=>{
+exports.getHall=  async (req,res,next)=>{
     try {
     const hall = await Hall.findById({placeId:req.params.placeId}, req.params.id);
         if(!hall) next(createError(404,"hall not found!"));
@@ -49,7 +49,7 @@ export const getHall=  async (req,res,next)=>{
         next(err)
     }
 };
-export const getHalls=  async (req,res,next)=>{
+exports.getHalls=  async (req,res,next)=>{
     // const q = req.query;
     // const filters = {
     //     ...(q.userId && {userId: q.userId}),

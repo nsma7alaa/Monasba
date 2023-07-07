@@ -19,7 +19,7 @@ const notificationSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  // Other fields you may need
+ 
 });
 
 const Notification = mongoose.model('Notification', notificationSchema);

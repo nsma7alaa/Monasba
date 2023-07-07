@@ -1,7 +1,7 @@
-const Notification = require('./models/notification');
+const Notification = require('../models/notification');
 
 // Assuming you have the placeId and message available
-function createNotification(placeId, message) {
+exports.createNotification=(placeId, message)=>{
   // Find all the users who have saved the place
   SavedPlace.find({ placeId })
     .then(savedPlaces => {
@@ -24,6 +24,6 @@ function createNotification(placeId, message) {
         });
     })
     .catch(error => {
-      // Handle error
+     
     });
 }
