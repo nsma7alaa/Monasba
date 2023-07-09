@@ -1,17 +1,38 @@
-import express from "express";
-import { verifyToken } from "../middleware/jwt.js";
-
-import{
-    createPackage,
-    deletePackage,
-    getPackage,
-    getPackages
-} from "../controllers/hallpackage.controller.js"
+const express = require('express');
+const {
+  getAllPackage,
+  getPackage,
+  getMyPackage,
+  createPackage,
+  deletePackage,
+  resizeImage,
+  updateMyPackage,
+} = require('../controllers/hallpackage.controller');
+const authController = require ('../controllers/authController');
 const router = express.Router();
 
-router.post("/", verifyToken, createPackage);
-router.delete("/:id", verifyToken, deletePackage); 
-router.get("/single/:id",getPackage);
-router.get("/", getPackages);
+router
+.route('/')
+.get(getAllPackage)
 
-export default router; 
+router
+.route('/single/:id')
+.get(getPackage)
+
+
+router.use(authController.protect);
+
+
+router
+.route('/')
+.post( authController.allowedTo("owner") , resizeImage, createPackage);
+
+router.get('/getmyPackage', authController.allowedTo("owner") , getMyPackage);
+
+router.put('/updatemyPackage',authController.allowedTo("owner") , resizeImage, updateMyPackage)
+
+router.delete('/deletemyPackage',  authController.allowedTo("owner"), deletePackage);
+
+
+
+module.exports = router;

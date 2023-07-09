@@ -1,4 +1,5 @@
 const SavedPlace = require('./models/savedPlace');
+const handlersFactory = require('./handlersFactory');
 
 // Assuming you have the placeId and userId available
 SavedPlace.create({ placeId, userId })
@@ -33,3 +34,5 @@ exports.deletesavedPlace = asyncHandler(async (req,res,next)=>{
         res.json({ message: 'Place deleted successfully' });
       });
     });
+
+    exports.getAllsavedPlaces = handlersFactory.getAll(SavedPlace);

@@ -1,39 +1,41 @@
-import mongoose from 'mongoose';
-const { Schema } = mongoose;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const hallPackageSchema = new Schema({
-placeId:{//what place
-    type: String,
-     required:true,
-},
-HallId:{ //which hall
-    type: String,
-     required:true,
-},
-packageName:{
-    type: String,
-     required:true,
-},
-Title:{
-    type: String,
-     required:true,
-},
-desc:{
-    type: String,
-    required: true,
-},
-priceNum:{
-    type: Number,
-    default : 0,
-},
-peopleNUm:{
-    type: Number,
-    default : 0,
-},
+ packagename:{
+        type: String, 
+         required:true, 
+    },
+[title]:{
+    type: String, 
+     required:true, 
+     
+    desc:{
+        type: String,
+     required: false,
+    }
+}, 
 
+
+
+
+owner: { type: mongoose.Schema.Types.ObjectId, ref: 'placeid' },
+
+halls:[
+    {
+      type:mongoose.Schema.Types.ObjectId, ref: 'Hall'
+    }
+],
 
 },{
     timestamps:true
 });
- 
-export default mongoose.model("Package", hallPackageSchema)
+
+// placeSchema.pre(/^find/, function (next) {
+//     // this points to the current query.
+//     this.find({ active: { $ne: false } });
+//     next();
+//   });
+
+const HallPackage = mongoose.model('HallPackage', hallPackageSchema)
+module.exports = HallPackage;

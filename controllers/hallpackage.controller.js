@@ -1,60 +1,89 @@
-import Place from "../models/place.model.js";
-import Hall from "../models/hall.model.js"
-import Package from "../models/hallPackage.model.js";
-import createError from "../utils/createError.js";
+const  Package = require('../models/hallPackage.model');
+const AppError = require('../utils/appError');
+const asyncHandler = require('express-async-handler');
+const handlersFactory = require('./handlersFactory');
+const owner = require('../models/userModel');
 
-export const createPackage =  async (req,res,next)=>{
-    if(!req.isPlaceOwner) 
-    return next(createError(403,"only placeowner can create halls!"));
+const Hall = require('../models/hallModel.js');
+
+
+exports.createPackage = asyncHandler(async (req,res,next)=>{
+  try {
+    const hallId = req.hall.id;
+  
+    const ownerId = req.user.id;
 
     const newPackage = new Package({
-        userId: req.userId,
-        ...req.body,
-    }); 
-    try{
-        const savedPackage = await newPackage.save();
-        res.status(201).json(savedPackage)
-    } catch (err){
-        next(err);
-    }
 
-};
-export const deletePackage=  async (req,res,next)=>{
-    try {
-        const hallpackage = await Package.findById(req.params.id);
-        if(hallpackage.userId !== req.userId) 
-            return next(createError(403,"you can delete only your package"));
+      halls: hallId,
+      owner: ownerId,
+      ...req.body
+    
+    });
+    // Save the new package
+    await newPackage.save();
+    res.status(200).json({
+      status: 'success',
+      data: {
+        newPackage,
+      }
+  });} catch (err) {
+    console.error('Failed to create package', err);
+    res.status(400).json({ error: 'You can only have one package.' });
+  }
+});
 
-            await Package.findByIdAndDelete(req.params.id);
-            res.status(200).send("Package has been deleted!");
-    }catch(err){
-        next(err)
-    }
-};
+exports.deletePackage = asyncHandler(async (req,res,next)=>{
+  const hallId = req.hall.id;
+  // Delete the place owned by the hall from the database
+   await Package.deleteOne({ owner: hallId }, (err, result) => {
+        if (err) {
+          return next(new AppError('failed to delete package', 500));
+        }
+        if (result.deletedCount === 0) {
+          return next(new AppError('package not found', 404));
+        }
 
-export const getPackage=  async (req,res,next)=>{
-    try {
-        const hallpackage = await Package.findById(req.params.id);
-        if(!hallpackage) next(createError(404,"Place not found!"));
-        res.status(200).send(hallpackage)
-    }catch(err){
-        next(err)
-    }
-};
-export const getPackages=  async (req,res,next)=>{
-    const q = req.query;
-    const filters = {
-        ...(q.userId && {userId: q.userId}),
-        ...(q.cat && {cat: q.cat}),
-        ...((q.min || q.max) && {priceRange:{ ...(q.min && { $gt: q.min }), ...(q.max && {$lt: q.max})},}),
-        ...(q.search && {title: { $regex: q.search, $options: "i"}}),
-    }
+        res.json({ message: 'Done deleted the package successfully' });
+      });
+    });
 
-    try {
-       // const packages = await Hall.find(filters).sort({[q.sort]: -1 }); //to get the latest ones
-        const packages = await Hall.find(filters)
-        res.status(200).send(packages)
-    }catch(err){
-        next(err)
-    }
-};
+exports.getPackage = handlersFactory.getOne(Package);
+
+exports.getAllPackages = handlersFactory.getAll(Package);
+
+//getplacefromtheowner
+exports.getMyPackage = asyncHandler(async (req,res, next)=>{
+  const hallId = req.hall.id;
+  const existingPackage = await Package.findOne({ owner: hallId });
+  if (existingPackage) {
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        existingPackage,
+      }});
+  }
+  next(new AppError('There is no package for this owner yet', 400));
+});
+
+//updatepackage from his owner
+exports.updateMyPackag = asyncHandler(async (req,res,next)=>{
+  const hallId = req.hall.id;
+  const updatedData = req.body;
+
+    await Package.findOne({ owner: hallId }, (err,package)=>{
+    if (err){ return next(new AppError('Failed to retrieve package from database',500)) }
+
+    if (!package) {
+      return res.status(404).json({ error: 'Package not found' });
+     }
+    })
+    await Package.updateOne({ owner: hallId }, { $set: updatedData }, (err) => {
+    if (err) {
+      return next(new AppError('Failed to update package',500));
+    }}) 
+
+    res.status(200).json({
+    status: 'success'
+  });
+});

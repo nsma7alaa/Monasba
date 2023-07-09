@@ -28,6 +28,7 @@ const {
 const {createNotification} = require ('../controllers/notificationController');
 
 const authController = require('../controllers/authController');
+const { getAllsavedPlaces } = require('../controllers/savedPlace.controller');
 
 const router = express.Router();
 
@@ -74,6 +75,7 @@ router
   router
   .route('/notification')
   .post(createNotification)
+  .get(getAllsavedPlaces)
   
   
 
